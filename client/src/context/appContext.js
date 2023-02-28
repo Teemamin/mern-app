@@ -6,8 +6,8 @@ import { DISPLAY_ALERT,CLEAR_ALERT,TOGGLE_SIDEBAR,LOGOUT_USER,
    UPDATE_USER_BEGIN,UPDATE_USER_SUCCESS,UPDATE_USER_ERROR,HANDLE_CHANGE,
    CLEAR_VALUES,CREATE_JOB_BEGIN,CREATE_JOB_SUCCESS,CREATE_JOB_ERROR,
    GET_JOB_BEGIN,GET_JOB_SUCCESS,SET_EDIT_JOB,DELETE_JOB_BEGIN,
-   EDIT_JOB_BEGIN,EDIT_JOB_SUCCESS,EDIT_JOB_ERROR,
-   SHOW_STATS_BEGIN,SHOW_STATS_SUCCESS
+   EDIT_JOB_BEGIN,EDIT_JOB_SUCCESS,EDIT_JOB_ERROR,CHANGE_PAGE,
+   SHOW_STATS_BEGIN,SHOW_STATS_SUCCESS,CLEAR_FILTERS
    } from "./action";
 
 
@@ -51,7 +51,12 @@ export const initialState = {
     numOfPages: 1,
     page: 1,
     stats: {},
-    monthlyApplications: []
+    monthlyApplications: [],
+    search: '',
+    searchStatus: 'all',
+    searchType: 'all',
+    sort: 'latest',
+    sortOptions: ['latest', 'oldest', 'a-z', 'z-a'],
   };
 
 const AppProvider = ({children})=>{
@@ -89,7 +94,12 @@ const AppProvider = ({children})=>{
     });
 
     const getAllJobs = async ()=>{
-      let url = `/jobs`
+      const { search, searchStatus, searchType, sort, page } = state;
+      let url = `/jobs?page=${page}&status=${searchStatus}&jobType=${searchType}&sort=${sort}`;
+      if (search) {
+        url = url + `&search=${search}`; //search input could potentially be empty,so checking before adding to the query
+      }
+  
       try {
         dispatch({type: GET_JOB_BEGIN})
         const {data} = await authFetch.get(url)
@@ -97,8 +107,7 @@ const AppProvider = ({children})=>{
         const {jobs, totalJobs, numOfPages} = data
         dispatch({type: GET_JOB_SUCCESS, payload:{jobs, totalJobs, numOfPages}})
       } catch (error) {
-        console.log(error)
-        // logoutUser()
+        logoutUser()
       }
       clearAlert()
     }
@@ -220,7 +229,7 @@ const AppProvider = ({children})=>{
           await authFetch.delete(`/jobs/${jobId}`)
           getAllJobs() // calling this func to get the updated jobs and be in sync front n backend
         } catch (error) {
-          // logoutUser()
+          logoutUser()
         }
       }
 
@@ -231,9 +240,16 @@ const AppProvider = ({children})=>{
           dispatch({type: SHOW_STATS_SUCCESS,payload:{stats:data.defaultStats,monthlyApplications:data.monthlyApplications}})
           
         } catch (error) {
-          console.log(error.response)
-          // logoutUser()
+          // console.log(error.response)
+          logoutUser()
         }
+      }
+      const clearFilters = ()=>{
+        dispatch({type: CLEAR_FILTERS})
+      }
+      const changePage = (page)=>{
+        console.log(page)
+        dispatch({type: CHANGE_PAGE,payload:{page}})
       }
     return(
         <AppContext.Provider value={
@@ -241,7 +257,7 @@ const AppProvider = ({children})=>{
             ...state,displayAlert,setUpUser,toggleSidebar,
             logoutUser,updateUser, handleChange,clearValues,
             createJob,getAllJobs,setEditJob,deleteJob,editJob,
-            showStats
+            showStats,clearFilters,changePage
           }
         }>{children}</AppContext.Provider>
     )

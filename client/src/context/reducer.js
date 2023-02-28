@@ -2,7 +2,7 @@ import { DISPLAY_ALERT, CLEAR_ALERT,TOGGLE_SIDEBAR,
    SETUP_USER_BEGIN,SETUP_USER_SUCCESS,SETUP_USER_ERROR,LOGOUT_USER,
    UPDATE_USER_BEGIN,UPDATE_USER_SUCCESS,UPDATE_USER_ERROR,HANDLE_CHANGE,
    CLEAR_VALUES,CREATE_JOB_BEGIN,CREATE_JOB_SUCCESS,CREATE_JOB_ERROR,
-   GET_JOB_BEGIN,GET_JOB_SUCCESS,SET_EDIT_JOB,DELETE_JOB_BEGIN,
+   GET_JOB_BEGIN,GET_JOB_SUCCESS,SET_EDIT_JOB,DELETE_JOB_BEGIN, CLEAR_FILTERS,CHANGE_PAGE,
    EDIT_JOB_BEGIN,EDIT_JOB_SUCCESS,EDIT_JOB_ERROR,SHOW_STATS_BEGIN,SHOW_STATS_SUCCESS
  } from "./action";
 import { initialState } from "./appContext";
@@ -10,7 +10,9 @@ import { initialState } from "./appContext";
 const reducer = (state, action) => {
   if(action.type === HANDLE_CHANGE){
     return{
-      ...state, [action.payload.name]: action.payload.value
+      ...state,
+      [action.payload.name]: action.payload.value,
+      page: 1 // adding the page to 1 so that when the user uses the search input, the page buttons will be on 1
     }
   }
   if(action.type === LOGOUT_USER){// clearing the user in the state aswell,cos cearing localstorage wont trigger stateupdate
@@ -195,6 +197,22 @@ const reducer = (state, action) => {
         stats: action.payload.stats,
         monthlyApplications: action.payload.monthlyApplications
       };
+    }
+    if(action.type === CLEAR_FILTERS){
+      return{
+        ...state,
+        search: '',
+        searchStatus: 'all',
+        searchType: 'all',
+        sort: 'latest',
+        sortOptions: ['latest', 'oldest', 'a-z', 'z-a'],
+      }
+    }
+    if(action.type === CHANGE_PAGE){
+      return{
+        ...state,
+        page: action.payload.page
+      }
     }
     throw new Error(`no such action :${action.type}`);
   };

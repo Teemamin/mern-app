@@ -3,12 +3,24 @@ import { useEffect } from 'react';
 import Loading from './Loading';
 import Job from './Job';
 import Wrapper from '../assets/wrappers/JobsContainer';
+import PageBtnContainer from './PageBtnContainer';
 
 const JobsContainer = () => {
-  const { getAllJobs, jobs, isLoading, page, totalJobs } = useAppContext();
+  const { getAllJobs, jobs, isLoading, page, totalJobs,search,
+    searchStatus,
+    searchType,
+    sort,numOfPages } = useAppContext();
   useEffect(() => {
-    getAllJobs();
-  }, []);
+    const delaySearch = setTimeout(() => {//added timeout to delay the search req to the server,to allow user some time to type something meaningful
+      //  instead of adding the eslint ignore warning below, you can use useCallback, was getting dependency warning to add getAllJobs to the array but
+      //since we are changing state in the function, that will cause infinate loop
+      getAllJobs();
+    }, 400);
+    return()=>{
+      clearTimeout(delaySearch)
+    }
+    // eslint-disable-next-line
+  }, [search,searchStatus,searchType,sort,page]);
 
   if (isLoading) {
     return <Loading center />;
@@ -30,6 +42,7 @@ const JobsContainer = () => {
           return <Job key={job._id} {...job} />;
         })}
       </div>
+      {numOfPages > 1 && <PageBtnContainer />}
     </Wrapper>
   );
 }
