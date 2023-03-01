@@ -12,7 +12,7 @@ const reducer = (state, action) => {
     return{
       ...state,
       [action.payload.name]: action.payload.value,
-      page: 1 // adding the page to 1 so that when the user uses the search input, the page buttons will be on 1
+      page: 1 // adding the page to 1 so that when the user uses the search input, the page buttons will be on
     }
   }
   if(action.type === LOGOUT_USER){// clearing the user in the state aswell,cos cearing localstorage wont trigger stateupdate
@@ -100,6 +100,7 @@ const reducer = (state, action) => {
       ...state,
       user: action.payload.user,
       token: action.payload.token,
+      jobLocation: action.payload.location,
       userLocation: action.payload.location,
       isLoading: false,
       showAlert: true,

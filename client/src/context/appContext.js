@@ -233,17 +233,22 @@ const AppProvider = ({children})=>{
         }
       }
 
-      const showStats = async ()=>{
+      const showStats = async () => {
+        dispatch({ type: SHOW_STATS_BEGIN });
         try {
-          dispatch({type: SHOW_STATS_BEGIN})
-          const {data} = await authFetch('/jobs/stats')
-          dispatch({type: SHOW_STATS_SUCCESS,payload:{stats:data.defaultStats,monthlyApplications:data.monthlyApplications}})
-          
+          const { data } = await authFetch('/jobs/stats');
+          dispatch({
+            type: SHOW_STATS_SUCCESS,
+            payload: {
+              stats: data.defaultStats,
+              monthlyApplications: data.monthlyApplications,
+            },
+          });
         } catch (error) {
-          // console.log(error.response)
-          logoutUser()
+          logoutUser();
         }
-      }
+        clearAlert();
+      };
       const clearFilters = ()=>{
         dispatch({type: CLEAR_FILTERS})
       }
