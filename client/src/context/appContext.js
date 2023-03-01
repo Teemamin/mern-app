@@ -193,7 +193,7 @@ const AppProvider = ({children})=>{
         dispatch({type: SETUP_USER_BEGIN})
         try {
           const response = await axios.post(`/api/v1/auth/${endPoint}`,currentUser)
-          console.log(response)
+          // console.log(response)
           const {user,token,location} = response.data
           dispatch({type: SETUP_USER_SUCCESS, payload:{user,token,location,alertText}})
           addUserToLocalStorage({user,token,location})

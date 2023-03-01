@@ -9,7 +9,7 @@ const PageButtonContainer = () => {
         //since we are not using it, _ will do. index + 1 bcos array is 0 index, + 1 will make it start from 1
         return index + 1
     })
-    console.log(pages)
+    // console.log(pages)
   
     const prevPage = () => {
       let newPage = page - 1

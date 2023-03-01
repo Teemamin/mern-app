@@ -1,8 +1,10 @@
 import { FormRow, FormRowSelect } from '.';
 import { useAppContext } from '../context/appContext';
 import Wrapper from '../assets/wrappers/SearchContainer';
+import { useState, useMemo } from 'react';
 
 const SearchContainer = () => {
+  const [localSearch, setLocalSearch] = useState('');
   const {
     isLoading,
     search,
@@ -17,11 +19,29 @@ const SearchContainer = () => {
   } = useAppContext();
 
   const handleSearch = (e) => {
-    if (isLoading) return;
     handleChange({ name: e.target.name, value: e.target.value });
   };
+
+  const debounce = ()=>{// alterantive of writn debounce your self is using the lodash libry https://lodash.com/docs/#debounce
+    let debounceTimer 
+    return (e)=>{
+      setLocalSearch(e.target.value)
+      clearTimeout(debounceTimer)
+      debounceTimer = setTimeout(()=>{
+        handleChange({ name: e.target.name, value: e.target.value });
+      },1000)
+    }
+  }
+
+  const optimizedDebounce = useMemo(()=>debounce(),[])
+  //useMemo is a React Hook that lets you cache the result of a calculation between re-renders.
+  //the first time the app renders debounce() gets called, just that once and subsequent  rerenders it wont be called
+  //which means when setLocalSearch causes a rerender to update the sate, we will still have our cached func with it calculations
+  //subsequent rerenders wont cause the function to be redecleared along with its values/result
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    setLocalSearch('')
     clearFilters();
   };
   return (
@@ -33,8 +53,8 @@ const SearchContainer = () => {
           <FormRow
             type='text'
             name='search'
-            value={search}
-            handleChange={handleSearch}
+            value={localSearch}
+            handleChange={optimizedDebounce}
           ></FormRow>
           {/* search by status */}
           <FormRowSelect
