@@ -10,7 +10,6 @@ const start = async ()=>{
 
     try {
         await connectDB(process.env.MONGO_URL);
-        await Job.deleteMany();
     
         const jsonProducts = JSON.parse(
           await readFile(new URL('./mock-data.json', import.meta.url)) // we are using fs to read the file because of ES6 module, wont need that if using commonJS

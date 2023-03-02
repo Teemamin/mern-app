@@ -14,7 +14,7 @@ const createJob = async (req,res,next)=>{
     req.body.createdBy = req.user.userId
     const job = await Job.create(req.body)
     // console.log(job)
-    return res.status(StatusCodes.CREATED).json({job})
+     res.status(StatusCodes.CREATED).json({job})
 }
 
 const deleteJob = async (req,res,next)=>{
@@ -28,7 +28,7 @@ const deleteJob = async (req,res,next)=>{
     checkPermissions(req.user,job.createdBy)
     await job.remove()
 
-    return res.status(StatusCodes.OK).json({ msg: 'Success! Job removed' });
+     res.status(StatusCodes.OK).json({ msg: 'Success! Job removed' });
 }
 
 const getAllJobs = async (req,res,next)=>{
@@ -77,7 +77,7 @@ const getAllJobs = async (req,res,next)=>{
     const jobs = await result
     const totalJobs = await Job.countDocuments(queryObject);
     const numOfPages = Math.ceil(totalJobs / limit);
-    return res.status(StatusCodes.OK).json({ jobs, totalJobs, numOfPages })
+     return res.status(StatusCodes.OK).json({ jobs, totalJobs, numOfPages })
 }
 const updateJob = async (req,res,next)=>{
     // console.log(req.params.id)
@@ -100,7 +100,7 @@ const updateJob = async (req,res,next)=>{
         //runValidators, will only run validation on the data added inside the findoneandupdate call
         //this validation onl runs on the provided properties
     })
-    return res.status(StatusCodes.OK).json({updatedJob})
+     res.status(StatusCodes.OK).json({updatedJob})
 }
 const showStats = async (req,res,next)=>{
     let stats = await Job.aggregate([
@@ -111,7 +111,7 @@ const showStats = async (req,res,next)=>{
    stats = stats.reduce((acc,curr)=>{
         let {_id,count} = curr
         acc[_id] = count
-        return acc
+         return acc
     },{})
 
     const defaultStats = {//adding defaultStatts incase the user doesnt have any jobs created yet,you can send the stats alone if you handle the user not havn jobs in frontend
@@ -149,11 +149,11 @@ const showStats = async (req,res,next)=>{
             .month(month - 1)
             .year(year)
             .format('MMM Y');
-            return { date, count };
+            { date, count };
         })
         .reverse();
     
-      res.status(StatusCodes.OK).json({ defaultStats,monthlyApplications });
+    return  res.status(StatusCodes.OK).json({ defaultStats,monthlyApplications });
 }
 
 

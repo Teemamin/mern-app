@@ -9,10 +9,10 @@ const authenticateUser = async (req,res,next)=>{
     const token = authHeader.split(' ')[1]
     try {
         const payload = jwt.verify(token, process.env.JWT_SECRET)
+        const testUser = payload.userId === '64009ec7542eeb84e237437e'
         // console.log(payload)
         // req.user = payload
-        req.user = { userId: payload.userId };
-        console.log(req.user)
+        req.user = { userId: payload.userId, testUser };
         next()
     } catch (error) {
         throw new UnauthenticatedError('Unauthorized user')

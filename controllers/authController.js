@@ -17,7 +17,7 @@ const register = async (req,res,next)=>{
         const user = await User.create({name,email,password})
         const token = user.createJWT()
         //sending the user data like so, to ensure we do not send the password to the frontend
-        return res.status(StatusCodes.CREATED).json({user:{
+         res.status(StatusCodes.CREATED).json({user:{
             name: user.name,
             lastName: user.lastName,
             email: user.email,
@@ -40,7 +40,7 @@ const login = async (req,res,next)=>{
     }
     const token = user.createJWT()
     user.password = undefined
-    return res.status(StatusCodes.OK).json({user,token,location:user.location})
+     res.status(StatusCodes.OK).json({user,token,location:user.location})
 }
 
 const updateUser = async (req,res,next)=>{
@@ -56,7 +56,7 @@ const updateUser = async (req,res,next)=>{
     await user.save()
     const token = user.createJWT()
 
-    return res.status(StatusCodes.OK).json({user,token,location:user.location})
+     res.status(StatusCodes.OK).json({user,token,location:user.location})
 }
 
 export {register,login,updateUser}
