@@ -71,6 +71,20 @@ function Register() {
         <button type='submit' className='btn btn-block' disabled={isLoading}>
           submit
         </button>
+        <button
+          type='button'
+          className='btn btn-block btn-hipster'
+          disabled={isLoading}
+          onClick={() => {
+            setUpUser({
+              currentUser: { email: 'testuser@test.com', password: 'tester123' },
+              endPoint: 'login',
+              alertText: 'Login Successful! Redirecting...',
+            });
+          }}
+        >
+          {isLoading ? 'loading...' : 'demo app'}
+        </button>
 
         <p>
           {values.isMember ? 'Not a member yet?' : 'Already a member?'}

@@ -3,7 +3,7 @@ import { DISPLAY_ALERT, CLEAR_ALERT,TOGGLE_SIDEBAR,
    UPDATE_USER_BEGIN,UPDATE_USER_SUCCESS,UPDATE_USER_ERROR,HANDLE_CHANGE,
    CLEAR_VALUES,CREATE_JOB_BEGIN,CREATE_JOB_SUCCESS,CREATE_JOB_ERROR,
    GET_JOB_BEGIN,GET_JOB_SUCCESS,SET_EDIT_JOB,DELETE_JOB_BEGIN, CLEAR_FILTERS,CHANGE_PAGE,
-   EDIT_JOB_BEGIN,EDIT_JOB_SUCCESS,EDIT_JOB_ERROR,SHOW_STATS_BEGIN,SHOW_STATS_SUCCESS
+   EDIT_JOB_BEGIN,EDIT_JOB_SUCCESS,EDIT_JOB_ERROR,SHOW_STATS_BEGIN,SHOW_STATS_SUCCESS,DELETE_JOB_ERROR
  } from "./action";
 import { initialState } from "./appContext";
 
@@ -17,7 +17,7 @@ const reducer = (state, action) => {
   }
   if(action.type === LOGOUT_USER){// clearing the user in the state aswell,cos cearing localstorage wont trigger stateupdate
     return{
-      initialState,
+      ...initialState,
       user: null,
       token: null,
       userLocation: '',
@@ -166,6 +166,16 @@ const reducer = (state, action) => {
         ...state, isLoading: true
       }
     }
+    if (action.type === DELETE_JOB_ERROR) {
+      return {
+        ...state,
+        isLoading: false,
+        showAlert: true,
+        alertType: 'danger',
+        alertText: action.payload.msg,
+      };
+    }
+
     if (action.type === EDIT_JOB_BEGIN) {
       return { ...state, isLoading: true };
     }

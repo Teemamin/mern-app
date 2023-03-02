@@ -1,6 +1,7 @@
 import { useAppContext } from '../context/appContext';
 import { useEffect } from 'react';
 import Loading from './Loading';
+import Alert from './Alert'
 import Job from './Job';
 import Wrapper from '../assets/wrappers/JobsContainer';
 import PageBtnContainer from './PageBtnContainer';
@@ -9,7 +10,7 @@ const JobsContainer = () => {
   const { getAllJobs, jobs, isLoading, page, totalJobs,search,
     searchStatus,
     searchType,
-    sort,numOfPages } = useAppContext();
+    sort,numOfPages,showAlert } = useAppContext();
   useEffect(() => {
     const delaySearch = setTimeout(() => {//added timeout to delay the search req to the server,to allow user some time to type something meaningful
       //  instead of adding the eslint ignore warning below, you can use useCallback, was getting dependency warning to add getAllJobs to the array but
@@ -34,6 +35,7 @@ const JobsContainer = () => {
   }
   return (
     <Wrapper>
+      {showAlert && <Alert/>}
       <h5>
         {totalJobs} job{jobs.length > 1 && 's'} found
       </h5>

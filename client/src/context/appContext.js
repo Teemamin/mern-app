@@ -7,7 +7,7 @@ import { DISPLAY_ALERT,CLEAR_ALERT,TOGGLE_SIDEBAR,LOGOUT_USER,
    CLEAR_VALUES,CREATE_JOB_BEGIN,CREATE_JOB_SUCCESS,CREATE_JOB_ERROR,
    GET_JOB_BEGIN,GET_JOB_SUCCESS,SET_EDIT_JOB,DELETE_JOB_BEGIN,
    EDIT_JOB_BEGIN,EDIT_JOB_SUCCESS,EDIT_JOB_ERROR,CHANGE_PAGE,
-   SHOW_STATS_BEGIN,SHOW_STATS_SUCCESS,CLEAR_FILTERS
+   SHOW_STATS_BEGIN,SHOW_STATS_SUCCESS,CLEAR_FILTERS,DELETE_JOB_ERROR
    } from "./action";
 
 
@@ -208,8 +208,8 @@ const AppProvider = ({children})=>{
       }
 
       const editJob = async ()=>{
-       try {
         dispatch({type: EDIT_JOB_BEGIN})
+       try {
          const {editJobId,position, company, jobLocation, jobType, status} = state
          await authFetch.patch(`/jobs/${editJobId}`,{
           position, company, jobLocation, jobType, status
@@ -224,13 +224,15 @@ const AppProvider = ({children})=>{
        clearAlert()
       }
       const deleteJob = async (jobId) =>{
+        dispatch({type: DELETE_JOB_BEGIN })
         try {
-          dispatch({type: DELETE_JOB_BEGIN })
           await authFetch.delete(`/jobs/${jobId}`)
           getAllJobs() // calling this func to get the updated jobs and be in sync front n backend
         } catch (error) {
-          logoutUser()
+          if (error.response.status === 401) return;
+          dispatch({type: DELETE_JOB_ERROR, payload:{msg: error.response.data.msg}})
         }
+        clearAlert()
       }
 
       const showStats = async () => {
