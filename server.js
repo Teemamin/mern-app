@@ -2,6 +2,7 @@ import 'express-async-errors';
 import express from "express";
 import morgan from 'morgan';
 import dotenv from 'dotenv'
+import cookieParser from 'cookie-parser';
 
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -36,10 +37,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));//cos we are using ES6
 // only when ready to deploy
 app.use(express.static(path.resolve(__dirname, './client/build')));
 app.use(express.json())
+app.use(cookieParser())
 //security packages
 app.use(helmet());
 app.use(xss());
 app.use(mongoSanitize());
+
 
 app.get('/api/v1',(req,res)=>{
     return res.json({msg:'hello from express'})

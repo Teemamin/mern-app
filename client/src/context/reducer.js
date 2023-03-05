@@ -3,7 +3,8 @@ import { DISPLAY_ALERT, CLEAR_ALERT,TOGGLE_SIDEBAR,
    UPDATE_USER_BEGIN,UPDATE_USER_SUCCESS,UPDATE_USER_ERROR,HANDLE_CHANGE,
    CLEAR_VALUES,CREATE_JOB_BEGIN,CREATE_JOB_SUCCESS,CREATE_JOB_ERROR,
    GET_JOB_BEGIN,GET_JOB_SUCCESS,SET_EDIT_JOB,DELETE_JOB_BEGIN, CLEAR_FILTERS,CHANGE_PAGE,
-   EDIT_JOB_BEGIN,EDIT_JOB_SUCCESS,EDIT_JOB_ERROR,SHOW_STATS_BEGIN,SHOW_STATS_SUCCESS,DELETE_JOB_ERROR
+   EDIT_JOB_BEGIN,EDIT_JOB_SUCCESS,EDIT_JOB_ERROR,SHOW_STATS_BEGIN,SHOW_STATS_SUCCESS,DELETE_JOB_ERROR,
+   GET_CURRENT_USER_BEGIN,GET_CURRENT_USER_SUCCESS
  } from "./action";
 import { initialState } from "./appContext";
 
@@ -15,13 +16,10 @@ const reducer = (state, action) => {
       page: 1 // adding the page to 1 so that when the user uses the search input, the page buttons will be on
     }
   }
-  if(action.type === LOGOUT_USER){// clearing the user in the state aswell,cos cearing localstorage wont trigger stateupdate
+  if(action.type === LOGOUT_USER){// resetting the state 
     return{
       ...initialState,
-      user: null,
-      token: null,
-      userLocation: '',
-      jobLocation: '',
+      userLoading: false, //default is true in the state,so we need to change it
     }
   }
   if (action.type === GET_JOB_BEGIN) {
@@ -67,7 +65,6 @@ const reducer = (state, action) => {
     return {
       ...state,
       isLoading: false,
-      token:action.payload.token,
       user: action.payload.user,
       userLocation: action.payload.location,
       jobLocation: action.payload.location,
@@ -99,7 +96,6 @@ const reducer = (state, action) => {
     return{
       ...state,
       user: action.payload.user,
-      token: action.payload.token,
       jobLocation: action.payload.location,
       userLocation: action.payload.location,
       isLoading: false,
@@ -224,6 +220,18 @@ const reducer = (state, action) => {
         ...state,
         page: action.payload.page
       }
+    }
+    if (action.type === GET_CURRENT_USER_BEGIN) {
+      return { ...state, userLoading: true, showAlert: false };
+    }
+    if (action.type === GET_CURRENT_USER_SUCCESS) {
+      return {
+        ...state,
+        userLoading: false,
+        user: action.payload.user,
+        userLocation: action.payload.location,
+        jobLocation: action.payload.location,
+      };
     }
     throw new Error(`no such action :${action.type}`);
   };

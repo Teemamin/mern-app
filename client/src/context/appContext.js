@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer } from "react";
+import { createContext, useContext, useReducer,useEffect } from "react";
 import axios from 'axios';
 import reducer from "./reducer";
 import { DISPLAY_ALERT,CLEAR_ALERT,TOGGLE_SIDEBAR,LOGOUT_USER,
@@ -7,37 +7,24 @@ import { DISPLAY_ALERT,CLEAR_ALERT,TOGGLE_SIDEBAR,LOGOUT_USER,
    CLEAR_VALUES,CREATE_JOB_BEGIN,CREATE_JOB_SUCCESS,CREATE_JOB_ERROR,
    GET_JOB_BEGIN,GET_JOB_SUCCESS,SET_EDIT_JOB,DELETE_JOB_BEGIN,
    EDIT_JOB_BEGIN,EDIT_JOB_SUCCESS,EDIT_JOB_ERROR,CHANGE_PAGE,
-   SHOW_STATS_BEGIN,SHOW_STATS_SUCCESS,CLEAR_FILTERS,DELETE_JOB_ERROR
+   SHOW_STATS_BEGIN,SHOW_STATS_SUCCESS,CLEAR_FILTERS,DELETE_JOB_ERROR,
+   GET_CURRENT_USER_BEGIN,GET_CURRENT_USER_SUCCESS
    } from "./action";
 
 
 const AppContext = createContext()
-const addUserToLocalStorage = ({user,location,token})=>{
-  localStorage.setItem('user',JSON.stringify(user))
-  localStorage.setItem('token', token)
-  localStorage.setItem('location', location)
-}
 
-const removeUserFromLocalStorage = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
-  localStorage.removeItem('location');
-};
-
-const token = localStorage.getItem('token');
-const user = localStorage.getItem('user');
-const userLocation = localStorage.getItem('location');
 
 export const initialState = {
     isLoading: false,
+    userLoading: true,
     showAlert: false,
     alertText: '',
     alertType: '',
-    user: user ? JSON.parse(user) : null,
-    token: token,
-    userLocation: userLocation || '',
+    user:  null,
+    userLocation:  '',
     showSidebar: false,
-    jobLocation: userLocation || '',
+    jobLocation:  '',
     isEditing: false,
     editJobId: '',
     position: '',
@@ -67,16 +54,6 @@ const AppProvider = ({children})=>{
       baseURL: '/api/v1',
     });
 
-        // Add a request interceptor
-    authFetch.interceptors.request.use(function (config) {
-      // Do something before request is sent
-      config.headers['Authorization'] = `Bearer ${state.token}`
-      
-      return config;
-    }, function (error) {
-      // Do something with request error
-      return Promise.reject(error);
-    });
 
     // Add a response interceptor
     authFetch.interceptors.response.use(function (response) {
@@ -141,13 +118,11 @@ const AppProvider = ({children})=>{
       try {
         const {data} = await authFetch.patch('/auth/updateUser',currentUser)
         // console.log(data)
-        const { user, location, token } = data;
+        const { user, location } = data;
         dispatch({
           type: UPDATE_USER_SUCCESS,
-          payload: { user, location, token },
+          payload: { user, location},
         });
-    
-        addUserToLocalStorage({ user, location, token });
       } catch (error) {
         if (error.response.status !== 401) {
           //so that the alert doesnt show for 401 errors
@@ -168,9 +143,9 @@ const AppProvider = ({children})=>{
       dispatch({ type: CLEAR_VALUES })
     }
 
-    const logoutUser = ()=>{
+    const logoutUser = async ()=>{
+      await authFetch.get('/auth/logout');
       dispatch({type: LOGOUT_USER})// clearing the user in the state aswell,cos cearing localstorage wont trigger stateupdate
-      removeUserFromLocalStorage()
     }
     
     const toggleSidebar = ()=>{
@@ -194,9 +169,9 @@ const AppProvider = ({children})=>{
         try {
           const response = await axios.post(`/api/v1/auth/${endPoint}`,currentUser)
           // console.log(response)
-          const {user,token,location} = response.data
-          dispatch({type: SETUP_USER_SUCCESS, payload:{user,token,location,alertText}})
-          addUserToLocalStorage({user,token,location})
+          const {user,location} = response.data
+          dispatch({type: SETUP_USER_SUCCESS, payload:{user,location,alertText}})
+          
         } catch (error) {
           console.log(error)
           dispatch({type: SETUP_USER_ERROR, payload:{msg: error.response.data.msg}})
@@ -258,6 +233,24 @@ const AppProvider = ({children})=>{
         console.log(page)
         dispatch({type: CHANGE_PAGE,payload:{page}})
       }
+      const getCurrentUser = async () => {// this is an alternative to localStorage, everytime the page refreshes we fetch the current user cos state doesnt persist in react
+        dispatch({ type: GET_CURRENT_USER_BEGIN });
+        try {
+          const { data } = await authFetch('/auth/getCurrentUser');
+          const { user, location } = data;
+      
+          dispatch({
+            type: GET_CURRENT_USER_SUCCESS,
+            payload: { user, location },
+          });
+        } catch (error) {
+          if (error.response.status === 401) return;
+          logoutUser();
+        }
+      };
+      useEffect(() => {
+        getCurrentUser();
+      }, []);
     return(
         <AppContext.Provider value={
           {
